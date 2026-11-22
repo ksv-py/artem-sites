@@ -1,5 +1,24 @@
 /* Artem Sites - small vanilla JS helpers: geolocation + voice notes. */
 
+// Worker picker on the home page: filter the worker list by chosen site.
+(function () {
+  var wSite = document.getElementById("w_site_id");
+  var wSel = document.getElementById("worker_id");
+  if (!wSite || !wSel) return;
+  var filterWorkers = function () {
+    var sid = wSite.value;
+    Array.prototype.forEach.call(wSel.options, function (opt) {
+      if (!opt.value) return;
+      opt.hidden = !!(sid && opt.getAttribute("data-site") !== sid);
+    });
+    if (wSel.selectedOptions.length && wSel.selectedOptions[0].hidden) {
+      wSel.value = "";
+    }
+  };
+  wSite.addEventListener("change", filterWorkers);
+  filterWorkers();
+})();
+
 // Fill hidden lat/lng fields on any form marked data-geo-form.
 document.querySelectorAll("[data-geo-form]").forEach(function (form) {
   if (!navigator.geolocation) return;
