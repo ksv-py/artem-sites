@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Artem Sites{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">&#127963; Artem Sites</a>
+  <nav>
+    {% if role == 'owner' %}<a href="{{ url_for('dashboard') }}">Dashboard</a>{% endif %}
+    {% if role == 'supervisor' and my_site_id %}<a href="{{ url_for('site_detail', site_id=my_site_id) }}">My Site</a>{% endif %}
+    {% if role %}<a href="{{ url_for('report') }}">Daily Report</a>{% endif %}
+    {% if role %}<a href="{{ url_for('switch_role') }}">Switch role</a>{% endif %}
+  </nav>
+</header>
+<main class="wrap">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="flash">{% for m in messages %}<p>{{ m }}</p>{% endfor %}</div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="foot">Artem Interiors &amp; Constructions &middot; Site Management v1</footer>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

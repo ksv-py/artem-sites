@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Owner Dashboard - Artem Sites{% endblock %}
+{% block content %}
+<h1>All Sites &mdash; One Panel</h1>
+
+{% if overdue %}
+<div class="alert">
+  <h2>&#9888; Needs attention &mdash; {{ overdue|length }} overdue task{{ 's' if overdue|length != 1 else '' }}</h2>
+  <ul class="plain">
+    {% for o in overdue %}
+    <li><strong>{{ o.site.name }}</strong>: {{ o.task.title }}
+      &mdash; {{ o.task.assigned_to or 'unassigned' }}, {{ late_text(o.task) }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% else %}
+<div class="ok"><p>&#10003; No overdue tasks. All sites on track.</p></div>
+{% endif %}
+
+<div class="grid">
+  {% for c in site_cards %}
+  <div class="card site-card">
+    <h2><a href="{{ url_for('site_detail', site_id=c.site.id) }}">{{ c.site.name }}</a></h2>
+    <p class="muted">{{ c.site.type }} &middot; {{ c.site.location or '' }} &middot; {{ c.site.status }}</p>
+    <div class="progress"><div style="width: {{ c.stats.progress }}%"></div></div>
+    <p>{{ c.stats.tasks_done }} of {{ c.stats.tasks_total }} tasks done ({{ c.stats.progress }}%)</p>
+    <p>Today: {{ c.stats.present }} of {{ c.stats.workers }} workers present</p>
+    <p>Open tasks: {{ c.stats.tasks_open }}
+      {% if c.stats.overdue %}&middot; <span class="red">{{ c.stats.overdue }} overdue</span>{% endif %}</p>
+    <a class="btn" href="{{ url_for('site_detail', site_id=c.site.id) }}">Open site</a>
+  </div>
+  {% endfor %}
+</div>
+
+<p class="mt"><a class="btn" href="{{ url_for('site_new') }}">+ Add a site</a>
+<a class="btn ghost" href="{{ url_for('report') }}">Daily report</a></p>
+{% endblock %}

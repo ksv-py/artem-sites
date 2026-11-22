@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ site.name }} - Artem Sites{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('dashboard') if role == 'owner' else url_for('index') }}">&larr; Back</a></p>
+<h1>{{ site.name }}</h1>
+<p class="muted">{{ site.type }} &middot; {{ site.location or '' }} &middot; {{ site.status }}</p>
+
+<div class="statrow">
+  <div class="stat"><strong>{{ stats.present }}/{{ stats.workers }}</strong><span>present today</span></div>
+  <div class="stat"><strong>{{ stats.tasks_done }}/{{ stats.tasks_total }}</strong><span>tasks done</span></div>
+  <div class="stat"><strong>{{ stats.tasks_open }}</strong><span>open tasks</span></div>
+  <div class="stat"><strong class="{{ 'red' if stats.overdue else '' }}">{{ stats.overdue }}</strong><span>overdue</span></div>
+</div>
+
+<p>
+  <a class="btn big" href="{{ url_for('attendance', site_id=site.id) }}">Mark attendance</a>
+  <a class="btn big" href="{{ url_for('tasks', site_id=site.id) }}">Tasks</a>
+  <a class="btn big" href="{{ url_for('materials', site_id=site.id) }}">Material</a>
+</p>
+
+<div class="card">
+  <h2>Today's attendance</h2>
+  {% if today_att %}
+  <ul class="plain">
+    {% for a in today_att %}
+    <li>{{ a.worker_name }} &mdash; <strong>{{ a.status }}</strong>
+      {% if a.lat and a.lng %}&middot; location {{ a.lat }}, {{ a.lng }}{% endif %}
+      {% if a.photo_path %}&middot; <a href="{{ photo_url(a.photo_path) }}" target="_blank">photo</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No attendance marked yet today.</p>
+  {% endif %}
+  <p><a href="{{ url_for('attendance_history', site_id=site.id) }}">Attendance history</a></p>
+</div>
+
+<div class="card">
+  <h2>Tasks</h2>
+  {% if tasks %}
+  <ul class="plain">
+    {% for t in tasks %}
+    <li>
+      <strong>{{ t.title }}</strong> &mdash; {{ t.assigned_to or 'unassigned' }}, due {{ t.due_at or 'no date' }}
+      {% if t.status == 'done' %}
+        &middot; <span class="green">Done</span>
+        {% if t.photo_path %}&middot; <a href="{{ photo_url(t.photo_path) }}" target="_blank">proof photo</a>{% endif %}
+      {% elif is_overdue(t) %}
+        &middot; <span class="red">OVERDUE ({{ late_text(t) }})</span>
+      {% else %}
+        &middot; Open
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No tasks yet for this site.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Material requests</h2>
+  {% if materials %}
+  <ul class="plain">
+    {% for m in materials %}
+    <li><strong>{{ m.item }}</strong> {{ m.quantity or '' }} &mdash; due {{ m.due_date or 'no date' }} ({{ m.status }})
+      {% if m.voice_path %}&middot; <a href="{{ photo_url(m.voice_path) }}" target="_blank">voice note</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No material requests yet.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Workers on this site</h2>
+  <ul class="plain">
+    {% for w in workers %}
+    <li>{{ w.name }} &mdash; {{ w.role }}{% if w.is_supervisor %} (Supervisor){% endif %}{% if w.phone %} &middot; {{ w.phone }}{% endif %}</li>
+    {% endfor %}
+  </ul>
+  <form method="post" action="{{ url_for('worker_add', site_id=site.id) }}" class="inline-form">
+    <input name="name" placeholder="Worker name" required>
+    <input name="role" placeholder="Role (mason, painter...)" value="Helper">
+    <input name="phone" placeholder="Phone (optional)">
+    <button class="btn" type="submit">+ Add worker</button>
+  </form>
+</div>
+{% endblock %}

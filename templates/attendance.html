@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Attendance - {{ site.name }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('site_detail', site_id=site.id) }}">&larr; Back to {{ site.name }}</a></p>
+<h1>Attendance &mdash; {{ site.name }}</h1>
+<p class="muted">Today: {{ today }}</p>
+
+<div class="card">
+  <h2>Mark attendance</h2>
+  <form method="post" enctype="multipart/form-data" data-geo-form>
+    <label for="worker_id">Worker</label>
+    <select name="worker_id" id="worker_id" required>
+      <option value="">Choose a worker</option>
+      {% for w in workers %}
+      <option value="{{ w.id }}">{{ w.name }} &mdash; {{ w.role }}</option>
+      {% endfor %}
+    </select>
+    <label>Status</label>
+    <div class="radio-row">
+      <label><input type="radio" name="status" value="Present" checked> Present</label>
+      <label><input type="radio" name="status" value="Absent"> Absent</label>
+      <label><input type="radio" name="status" value="Half day"> Half day</label>
+    </div>
+    <label for="photo">Photo (face check &mdash; opens camera on phone)</label>
+    <input type="file" id="photo" name="photo" accept="image/*" capture="environment">
+    <input type="hidden" name="lat" id="lat">
+    <input type="hidden" name="lng" id="lng">
+    <p class="geo-note muted">Location: waiting for GPS&hellip;</p>
+    <button class="btn big" type="submit">Save attendance</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Today's list</h2>
+  {% if today_att %}
+  <ul class="plain">
+    {% for a in today_att %}
+    <li>{{ a.worker_name }} ({{ a.worker_role }}) &mdash; <strong>{{ a.status }}</strong>
+      {% if a.lat and a.lng %}&middot; {{ a.lat }}, {{ a.lng }}{% endif %}
+      {% if a.photo_path %}&middot; <a href="{{ photo_url(a.photo_path) }}" target="_blank">photo</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No one marked yet today.</p>
+  {% endif %}
+  <p><a href="{{ url_for('attendance_history', site_id=site.id) }}">See history</a></p>
+</div>
+{% endblock %}

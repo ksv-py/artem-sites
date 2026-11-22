@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Artem Sites - Home{% endblock %}
+{% block content %}
+<h1>Artem Site Management</h1>
+<p class="lead">All sites, attendance, tasks, material and daily report in one place.</p>
+
+{% if not role %}
+<div class="card">
+  <h2>Who are you?</h2>
+  <form method="post" action="{{ url_for('set_role') }}">
+    <input type="hidden" name="role" value="owner">
+    <button class="btn big" type="submit">Owner &mdash; see all sites</button>
+  </form>
+  <form method="post" action="{{ url_for('set_role') }}" class="mt">
+    <input type="hidden" name="role" value="supervisor">
+    <label for="site_id">Supervisor &mdash; pick your site</label>
+    <select name="site_id" id="site_id" required>
+      <option value="">Choose a site</option>
+      {% for s in sites %}
+      <option value="{{ s.id }}">{{ s.name }} &mdash; {{ s.type }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn big" type="submit">Open my site</button>
+  </form>
+</div>
+{% else %}
+<div class="card">
+  <p>You are signed in as <strong>{{ role }}</strong>.</p>
+  {% if role == 'owner' %}
+  <a class="btn big" href="{{ url_for('dashboard') }}">Go to dashboard</a>
+  {% else %}
+  <a class="btn big" href="{{ url_for('site_detail', site_id=my_site_id) }}">Go to my site</a>
+  {% endif %}
+  <a class="btn ghost mt" href="{{ url_for('report') }}">Daily report</a>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>Sites</h2>
+  <ul class="plain">
+    {% for s in sites %}
+    <li><strong>{{ s.name }}</strong> &mdash; {{ s.type }}, {{ s.location or 'no address' }} ({{ s.status }})</li>
+    {% endfor %}
+  </ul>
+  {% if role == 'owner' %}
+  <a class="btn" href="{{ url_for('site_new') }}">+ Add a site</a>
+  {% endif %}
+</div>
+{% endblock %}

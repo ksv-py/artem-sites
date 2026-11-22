@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Attendance History - {{ site.name }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('site_detail', site_id=site.id) }}">&larr; Back to {{ site.name }}</a></p>
+<h1>Attendance &mdash; {{ site.name }}</h1>
+<form method="get" class="inline-form">
+  <label for="date">Date</label>
+  <input type="date" id="date" name="date" value="{{ day }}">
+  <button class="btn" type="submit">Show</button>
+</form>
+<div class="card mt">
+  {% if rows %}
+  <ul class="plain">
+    {% for r in rows %}
+    <li>{{ r.worker_name }} ({{ r.worker_role }}) &mdash; <strong>{{ r.status }}</strong>
+      {% if r.lat and r.lng %}&middot; {{ r.lat }}, {{ r.lng }}{% endif %}
+      {% if r.photo_path %}&middot; <a href="{{ photo_url(r.photo_path) }}" target="_blank">photo</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No attendance recorded on {{ day }}.</p>
+  {% endif %}
+</div>
+{% endblock %}

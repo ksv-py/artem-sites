@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Tasks - {{ site.name }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('site_detail', site_id=site.id) }}">&larr; Back to {{ site.name }}</a></p>
+<h1>Tasks &mdash; {{ site.name }}</h1>
+
+<div class="card">
+  <h2>Add a task</h2>
+  <form method="post">
+    <label for="title">Work to do</label>
+    <input id="title" name="title" placeholder="e.g. Slab - 3rd floor" required>
+    <label for="assigned_to">Assign to</label>
+    <select id="assigned_to" name="assigned_to">
+      <option value="">Unassigned</option>
+      {% for w in workers %}
+      <option>{{ w.name }}</option>
+      {% endfor %}
+      <option>Mehul (Purchase)</option>
+    </select>
+    <label for="due_at">Due date and time</label>
+    <input type="datetime-local" id="due_at" name="due_at">
+    <button class="btn big" type="submit">Add task</button>
+  </form>
+</div>
+
+{% for t in tasks %}
+<div class="card task {% if t.status == 'done' %}done{% elif is_overdue(t) %}overdue{% endif %}">
+  <h3>{{ t.title }}</h3>
+  <p>{{ t.assigned_to or 'Unassigned' }} &middot; due {{ t.due_at or 'no date' }}
+    {% if t.kind == 'purchase' %}&middot; Purchase{% endif %}</p>
+  {% if t.status == 'done' %}
+  <p><span class="green"><strong>Done</strong></span>
+    {% if t.photo_path %}&middot; <a href="{{ photo_url(t.photo_path) }}" target="_blank">See proof photo</a>{% endif %}</p>
+  {% else %}
+  {% if is_overdue(t) %}<p><span class="red"><strong>OVERDUE &mdash; {{ late_text(t) }}</strong></span></p>{% endif %}
+  <form method="post" action="{{ url_for('task_done', task_id=t.id) }}" enctype="multipart/form-data">
+    <label for="photo-{{ t.id }}">Photo proof (needed to finish)</label>
+    <input type="file" id="photo-{{ t.id }}" name="photo" accept="image/*" capture="environment" required>
+    <button class="btn big" type="submit">Mark done with photo</button>
+  </form>
+  {% endif %}
+</div>
+{% else %}
+<p>No tasks yet for this site.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Add a Site - Artem Sites{% endblock %}
+{% block content %}
+<h1>Add a site</h1>
+<form method="post" class="card">
+  <label for="name">Site name</label>
+  <input id="name" name="name" placeholder="e.g. Site E - Sharma Residence" required>
+  <label for="location">Location / address</label>
+  <input id="location" name="location" placeholder="e.g. Saket, New Delhi">
+  <label for="type">Type</label>
+  <select id="type" name="type">
+    <option>Residential</option>
+    <option>Commercial</option>
+    <option>Turnkey</option>
+    <option>Renovation</option>
+  </select>
+  <button class="btn big" type="submit">Save site</button>
+</form>
+<p><a href="{{ url_for('dashboard') }}">&larr; Back to dashboard</a></p>
+{% endblock %}
