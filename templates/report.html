@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Daily Report - {{ day }}{% endblock %}
+{% block content %}
+<h1>Daily Report</h1>
+<form method="get" class="inline-form">
+  <label for="date">Date</label>
+  <input type="date" id="date" name="date" value="{{ day }}">
+  <button class="btn" type="submit">Show</button>
+</form>
+
+<div class="statrow mt">
+  <div class="stat"><strong>{{ totals.present }}/{{ totals.workers }}</strong><span>present</span></div>
+  <div class="stat"><strong>{{ totals.done }}</strong><span>tasks done today</span></div>
+  <div class="stat"><strong>{{ totals.open }}</strong><span>tasks open</span></div>
+  <div class="stat"><strong class="{{ 'red' if totals.overdue else '' }}">{{ totals.overdue }}</strong><span>overdue</span></div>
+</div>
+
+<p><a class="btn big" href="{{ wa_link }}" target="_blank">Share on WhatsApp</a></p>
+
+{% for s in sections %}
+<div class="card">
+  <h2>{{ s.site.name }} &mdash; {{ s.site.type }}</h2>
+  <p>Attendance: {{ s.stats.present }} of {{ s.stats.workers }} present</p>
+  {% if s.attendance %}
+  <ul class="plain">
+    {% for a in s.attendance %}
+    <li>{{ a.worker_name }} &mdash; {{ a.status }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <p>Tasks done today: {{ s.done|length }}</p>
+  <ul class="plain">
+    {% for t in s.done %}
+    <li>&#10003; {{ t.title }} ({{ t.assigned_to or '-' }})</li>
+    {% endfor %}
+  </ul>
+  {% if s.overdue %}
+  <p><strong class="red">Overdue:</strong></p>
+  <ul class="plain">
+    {% for t in s.overdue %}
+    <li>{{ t.title }} &mdash; {{ late_text(t) }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if s.materials %}
+  <p>Material requested today:</p>
+  <ul class="plain">
+    {% for m in s.materials %}
+    <li>{{ m.item }} {{ m.quantity or '' }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endfor %}
+
+<details class="card">
+  <summary>Report text (as shared on WhatsApp)</summary>
+  <pre>{{ report_text }}</pre>
+</details>
+{% endblock %}
