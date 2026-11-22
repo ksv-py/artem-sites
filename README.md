@@ -1,4 +1,4 @@
-# Artem Sites — Site Management App (v1)
+# Artem Sites — Site Management App (v2)
 
 A mobile-first web app for Artem Interiors & Constructions (Delhi) to run
 construction/interior sites from a phone, modelled on the Tasks.Bot Reel:
@@ -26,8 +26,37 @@ can be shared on WhatsApp.
   done with photos, open/overdue tasks, material requests. A
   "Share on WhatsApp" button opens a `wa.me` link with the report
   text prefilled (no WhatsApp API, just a share link).
-- **Roles** — pick Owner or Supervisor on the home page. Owner sees
-  everything; a supervisor picks their site and only sees that site.
+
+## v2: Hindi / English, three roles, worked-till
+
+- **Language button** — "हिन्दी" / "English" in the header on every
+  page. It switches the whole UI between English and Hindi and
+  remembers the choice for the session. Site and worker names stay
+  as they are. Statuses translate too (Present = उपस्थित, Absent =
+  अनुपस्थित, Half day = आधा दिन).
+- **Three roles** — pick one on the home page:
+  - **Worker (मज़दूर)** — picks their site and their own name. They
+    can only mark their *own* attendance for today (with photo, GPS
+    and worked-till) and see their *own* assigned tasks, which they
+    can mark done with a photo. They cannot see the dashboard, other
+    sites, other workers' attendance, or the daily report; blocked
+    pages send them back to their own page.
+  - **Supervisor (सुपरवाइज़र)** — picks their site. They see
+    everything for that site: all tasks, and today's attendance split
+    into Present and Absent lists. They can add attendance for any
+    worker and edit any attendance entry (status and worked-till).
+    They cannot see other sites or the owner dashboard.
+  - **Owner (मालिक)** — everything across all sites, as in v1, and
+    can edit any attendance entry too.
+- **Worked-till** — every attendance record has a "worked till"
+  field: Normal (5 PM), 8 PM, 12 AM (midnight), or Overnight. It is
+  set on the attendance form (worker self check-in and supervisor /
+  owner edit) and shown on the attendance list, the history, the
+  site page and the daily report (e.g. "Raju — Present, till 8 PM").
+  Overnight entries get a purple badge. The database column is added
+  with ALTER TABLE if it is missing, so the live Render database
+  from v1 keeps working on redeploy (old rows default to
+  "Normal (5 PM)").
 
 ## Run it locally
 
@@ -62,11 +91,12 @@ names from the reference Reel, not real clients or projects. Delete
 `artem.db` and restart to re-seed, or add real sites/workers from
 the app (Owner only).
 
-## v1 limitations (deliberate)
+## v2 limitations (deliberate)
 
 - **No login/passwords.** Role is picked on the home page and kept
-  in a browser session. Anyone with the link can open it. Add real
-  auth (per-supervisor accounts) before giving it to a team.
+  in a browser session. Anyone with the link can open it and pick
+  any role, including a worker picking someone else's name. Add real
+  auth (per-worker accounts / PINs) before giving it to a team.
 - **No face recognition.** Attendance uses a camera photo as proof;
   the app does not verify whose face is in the photo.
 - **No geofence check.** GPS coordinates are recorded with
