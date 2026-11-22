@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#faf6ec"/>
+  <rect x="40" y="40" width="320" height="220" rx="16" fill="#ffffff" stroke="#14532d" stroke-width="4"/>
+  <circle cx="200" cy="130" r="52" fill="#14532d"/>
+  <path d="M172 130 l20 22 l38 -44" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="200" y="225" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#14532d" text-anchor="middle">Work done</text>
+</svg>
