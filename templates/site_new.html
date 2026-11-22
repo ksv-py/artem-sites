@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Add a Site - Artem Sites{% endblock %}
+{% block title %}{{ t['add_site_title'] }} - Artem Sites{% endblock %}
 {% block content %}
-<h1>Add a site</h1>
+<h1>{{ t['add_site_title'] }}</h1>
 <form method="post" class="card">
-  <label for="name">Site name</label>
+  <label for="name">{{ t['site_name'] }}</label>
   <input id="name" name="name" placeholder="e.g. Site E - Sharma Residence" required>
-  <label for="location">Location / address</label>
+  <label for="location">{{ t['location_address'] }}</label>
   <input id="location" name="location" placeholder="e.g. Saket, New Delhi">
-  <label for="type">Type</label>
+  <label for="type">{{ t['type'] }}</label>
   <select id="type" name="type">
     <option>Residential</option>
     <option>Commercial</option>
     <option>Turnkey</option>
     <option>Renovation</option>
   </select>
-  <button class="btn big" type="submit">Save site</button>
+  <button class="btn big" type="submit">{{ t['save_site'] }}</button>
 </form>
-<p><a href="{{ url_for('dashboard') }}">&larr; Back to dashboard</a></p>
+<p><a href="{{ url_for('dashboard') }}">&larr; {{ t['back'] }} {{ t['dashboard'] }}</a></p>
 {% endblock %}

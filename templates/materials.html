@@ -1,36 +1,36 @@
 {% extends "base.html" %}
-{% block title %}Material - {{ site.name }}{% endblock %}
+{% block title %}{{ t['material'] }} - {{ site.name }}{% endblock %}
 {% block content %}
-<p><a href="{{ url_for('site_detail', site_id=site.id) }}">&larr; Back to {{ site.name }}</a></p>
-<h1>Material &mdash; {{ site.name }}</h1>
+<p><a href="{{ url_for('site_detail', site_id=site.id) }}">&larr; {{ t['back'] }} {{ site.name }}</a></p>
+<h1>{{ t['material'] }} &mdash; {{ site.name }}</h1>
 <p class="muted">A request becomes a purchase task for Mehul, with a due date.</p>
 
 <div class="card">
-  <h2>New material request</h2>
+  <h2>{{ t['new_material_request'] }}</h2>
   <form method="post" enctype="multipart/form-data">
-    <label for="item">Item</label>
+    <label for="item">{{ t['item'] }}</label>
     <input id="item" name="item" placeholder="e.g. cement, tiles, plywood" required>
-    <label for="quantity">Quantity</label>
+    <label for="quantity">{{ t['quantity'] }}</label>
     <input id="quantity" name="quantity" placeholder="e.g. 20 bags, 100 sq ft">
-    <label for="due_date">Needed by (date)</label>
+    <label for="due_date">{{ t['needed_by'] }}</label>
     <input type="date" id="due_date" name="due_date" value="{{ today }}">
-    <label>Voice note (optional)</label>
+    <label>{{ t['voice_note'] }}</label>
     <p>
       <button type="button" class="btn" id="recBtn">&#127908; Record voice note</button>
       <span id="voiceStatus" class="muted"></span>
     </p>
     <input type="file" id="voiceInput" name="voice" accept="audio/*">
-    <button class="btn big" type="submit">Raise request</button>
+    <button class="btn big" type="submit">{{ t['raise_request'] }}</button>
   </form>
 </div>
 
 {% for m in materials %}
 <div class="card">
   <h3>{{ m.item }} {{ m.quantity or '' }}</h3>
-  <p>Needed by {{ m.due_date or 'no date' }} &middot; {{ m.status }}
-    {% if m.voice_path %}&middot; <a href="{{ photo_url(m.voice_path) }}" target="_blank">Play voice note</a>{% endif %}</p>
+  <p>{{ t['needed_by'] }} {{ m.due_date or t['no_date'] }} &middot; {{ m.status }}
+    {% if m.voice_path %}&middot; <a href="{{ photo_url(m.voice_path) }}" target="_blank">{{ t['voice_note'] }}</a>{% endif %}</p>
 </div>
 {% else %}
-<p>No material requests yet for this site.</p>
+<p>{{ t['no_material'] }}</p>
 {% endfor %}
 {% endblock %}

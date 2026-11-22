@@ -1,49 +1,73 @@
 {% extends "base.html" %}
 {% block title %}Artem Sites - Home{% endblock %}
 {% block content %}
-<h1>Artem Site Management</h1>
-<p class="lead">All sites, attendance, tasks, material and daily report in one place.</p>
+<h1>{{ t['home_title'] }}</h1>
+<p class="lead">{{ t['lead'] }}</p>
 
 {% if not role %}
 <div class="card">
-  <h2>Who are you?</h2>
+  <h2>{{ t['who_are_you'] }}</h2>
   <form method="post" action="{{ url_for('set_role') }}">
     <input type="hidden" name="role" value="owner">
-    <button class="btn big" type="submit">Owner &mdash; see all sites</button>
+    <button class="btn big" type="submit">{{ t['owner_see_all'] }}</button>
   </form>
   <form method="post" action="{{ url_for('set_role') }}" class="mt">
     <input type="hidden" name="role" value="supervisor">
-    <label for="site_id">Supervisor &mdash; pick your site</label>
+    <label for="site_id">{{ t['supervisor_pick_site'] }}</label>
     <select name="site_id" id="site_id" required>
-      <option value="">Choose a site</option>
+      <option value="">{{ t['choose_site'] }}</option>
       {% for s in sites %}
       <option value="{{ s.id }}">{{ s.name }} &mdash; {{ s.type }}</option>
       {% endfor %}
     </select>
-    <button class="btn big" type="submit">Open my site</button>
+    <button class="btn big" type="submit">{{ t['open_my_site'] }}</button>
+  </form>
+  <form method="post" action="{{ url_for('set_role') }}" class="mt">
+    <input type="hidden" name="role" value="worker">
+    <label for="w_site_id">{{ t['worker_pick'] }}</label>
+    <select name="site_id" id="w_site_id" required>
+      <option value="">{{ t['choose_site'] }}</option>
+      {% for s in sites %}
+      <option value="{{ s.id }}">{{ s.name }} &mdash; {{ s.type }}</option>
+      {% endfor %}
+    </select>
+    <label for="worker_id">{{ t['choose_worker'] }}</label>
+    <select name="worker_id" id="worker_id" required>
+      <option value="">{{ t['choose_worker'] }}</option>
+      {% for w in all_workers %}
+      <option value="{{ w.id }}" data-site="{{ w.site_id }}">{{ w.name }} &mdash; {{ w.role }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn big" type="submit">{{ t['go_my_page'] }}</button>
   </form>
 </div>
 {% else %}
 <div class="card">
-  <p>You are signed in as <strong>{{ role }}</strong>.</p>
+  <p>{{ t['signed_in_as'] }} <strong>{{ t[role] }}</strong>.</p>
   {% if role == 'owner' %}
-  <a class="btn big" href="{{ url_for('dashboard') }}">Go to dashboard</a>
+  <a class="btn big" href="{{ url_for('dashboard') }}">{{ t['go_dashboard'] }}</a>
+  {% elif role == 'supervisor' %}
+  <a class="btn big" href="{{ url_for('site_detail', site_id=my_site_id) }}">{{ t['go_my_site'] }}</a>
   {% else %}
-  <a class="btn big" href="{{ url_for('site_detail', site_id=my_site_id) }}">Go to my site</a>
+  <a class="btn big" href="{{ url_for('worker_page') }}">{{ t['go_my_page'] }}</a>
   {% endif %}
-  <a class="btn ghost mt" href="{{ url_for('report') }}">Daily report</a>
+  {% if role in ('owner', 'supervisor') %}
+  <a class="btn ghost mt" href="{{ url_for('report') }}">{{ t['daily_report'] }}</a>
+  {% endif %}
 </div>
 {% endif %}
 
 <div class="card">
-  <h2>Sites</h2>
+  <h2>{{ t['sites'] }}</h2>
   <ul class="plain">
     {% for s in sites %}
+    {% if role != 'owner' and my_site_id and s.id != my_site_id %}{% else %}
     <li><strong>{{ s.name }}</strong> &mdash; {{ s.type }}, {{ s.location or 'no address' }} ({{ s.status }})</li>
+    {% endif %}
     {% endfor %}
   </ul>
   {% if role == 'owner' %}
-  <a class="btn" href="{{ url_for('site_new') }}">+ Add a site</a>
+  <a class="btn" href="{{ url_for('site_new') }}">{{ t['add_site'] }}</a>
   {% endif %}
 </div>
 {% endblock %}

@@ -1,49 +1,51 @@
 {% extends "base.html" %}
-{% block title %}Daily Report - {{ day }}{% endblock %}
+{% block title %}{{ t['daily_report'] }} - {{ day }}{% endblock %}
 {% block content %}
-<h1>Daily Report</h1>
+<h1>{{ t['daily_report'] }}</h1>
 <form method="get" class="inline-form">
-  <label for="date">Date</label>
+  <label for="date">{{ t['date'] }}</label>
   <input type="date" id="date" name="date" value="{{ day }}">
-  <button class="btn" type="submit">Show</button>
+  <button class="btn" type="submit">{{ t['show'] }}</button>
 </form>
 
 <div class="statrow mt">
-  <div class="stat"><strong>{{ totals.present }}/{{ totals.workers }}</strong><span>present</span></div>
-  <div class="stat"><strong>{{ totals.done }}</strong><span>tasks done today</span></div>
-  <div class="stat"><strong>{{ totals.open }}</strong><span>tasks open</span></div>
-  <div class="stat"><strong class="{{ 'red' if totals.overdue else '' }}">{{ totals.overdue }}</strong><span>overdue</span></div>
+  <div class="stat"><strong>{{ totals.present }}/{{ totals.workers }}</strong><span>{{ t['present_count'] }}</span></div>
+  <div class="stat"><strong>{{ totals.done }}</strong><span>{{ t['tasks_done_today'] }}</span></div>
+  <div class="stat"><strong>{{ totals.open }}</strong><span>{{ t['tasks_open'] }}</span></div>
+  <div class="stat"><strong class="{{ 'red' if totals.overdue else '' }}">{{ totals.overdue }}</strong><span>{{ t['overdue'] }}</span></div>
 </div>
 
-<p><a class="btn big" href="{{ wa_link }}" target="_blank">Share on WhatsApp</a></p>
+<p><a class="btn big" href="{{ wa_link }}" target="_blank">{{ t['share_whatsapp'] }}</a></p>
 
 {% for s in sections %}
 <div class="card">
   <h2>{{ s.site.name }} &mdash; {{ s.site.type }}</h2>
-  <p>Attendance: {{ s.stats.present }} of {{ s.stats.workers }} present</p>
+  <p>{{ t['attendance'] }}: {{ s.stats.present }} / {{ s.stats.workers }} {{ t['present_count'] }}</p>
   {% if s.attendance %}
   <ul class="plain">
     {% for a in s.attendance %}
-    <li>{{ a.worker_name }} &mdash; {{ a.status }}</li>
+    <li>{{ a.worker_name }} &mdash; {{ status_text(a.status) }}, {{ worked_till_text(a.worked_till) }}
+      {% if a.worked_till == 'Overnight' %} <span class="badge-overnight">{{ t['wt_overnight'] }}</span>{% endif %}
+    </li>
     {% endfor %}
   </ul>
   {% endif %}
-  <p>Tasks done today: {{ s.done|length }}</p>
+  <p>{{ t['tasks_done_today_label'] }}: {{ s.done|length }}</p>
   <ul class="plain">
-    {% for t in s.done %}
-    <li>&#10003; {{ t.title }} ({{ t.assigned_to or '-' }})</li>
+    {% for task in s.done %}
+    <li>&#10003; {{ task.title }} ({{ task.assigned_to or '-' }})</li>
     {% endfor %}
   </ul>
   {% if s.overdue %}
-  <p><strong class="red">Overdue:</strong></p>
+  <p><strong class="red">{{ t['overdue'] }}:</strong></p>
   <ul class="plain">
-    {% for t in s.overdue %}
-    <li>{{ t.title }} &mdash; {{ late_text(t) }}</li>
+    {% for task in s.overdue %}
+    <li>{{ task.title }} &mdash; {{ late_text(task) }}</li>
     {% endfor %}
   </ul>
   {% endif %}
   {% if s.materials %}
-  <p>Material requested today:</p>
+  <p>{{ t['material_requested_today'] }}:</p>
   <ul class="plain">
     {% for m in s.materials %}
     <li>{{ m.item }} {{ m.quantity or '' }}</li>
@@ -54,7 +56,7 @@
 {% endfor %}
 
 <details class="card">
-  <summary>Report text (as shared on WhatsApp)</summary>
+  <summary>{{ t['report_text_label'] }}</summary>
   <pre>{{ report_text }}</pre>
 </details>
 {% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ t['my_page'] }} - {{ worker.name }}{% endblock %}
+{% block content %}
+<h1>{{ t['my_page'] }} &mdash; {{ worker.name }}</h1>
+<p class="muted">{{ site.name }} &middot; {{ site.type }} &middot; {{ worker.role }}</p>
+
+<div class="card">
+  <h2>{{ t['your_attendance_today'] }} ({{ today }})</h2>
+  {% if today_row %}
+  <p><strong>{{ status_text(today_row.status) }}</strong>, {{ worked_till_text(today_row.worked_till) }}
+    {% if today_row.worked_till == 'Overnight' %} <span class="badge-overnight">{{ t['wt_overnight'] }}</span>{% endif %}
+    {% if today_row.photo_path %}&middot; <a href="{{ photo_url(today_row.photo_path) }}" target="_blank">{{ t['photo'] }}</a>{% endif %}
+  </p>
+  <p class="muted">{{ t['update_attendance'] }} — {{ t['save_attendance'] }}:</p>
+  {% else %}
+  <p>{{ t['not_marked_yet'] }}</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('attendance_self', site_id=site.id) }}" enctype="multipart/form-data" data-geo-form>
+    <label>{{ t['status'] }}</label>
+    <div class="radio-row">
+      <label><input type="radio" name="status" value="Present" {{ 'checked' if not today_row or today_row.status == 'Present' else '' }}> {{ t['present'] }}</label>
+      <label><input type="radio" name="status" value="Absent" {{ 'checked' if today_row and today_row.status == 'Absent' else '' }}> {{ t['absent'] }}</label>
+      <label><input type="radio" name="status" value="Half day" {{ 'checked' if today_row and today_row.status == 'Half day' else '' }}> {{ t['half_day'] }}</label>
+    </div>
+    <label for="worked_till">{{ t['worked_till'] }}</label>
+    <select name="worked_till" id="worked_till">
+      {% for opt in worked_till_options %}
+      <option value="{{ opt }}" {{ 'selected' if today_row and today_row.worked_till == opt else '' }}>{{ wt_label(opt) }}</option>
+      {% endfor %}
+    </select>
+    <label for="photo">{{ t['photo_face'] }}</label>
+    <input type="file" id="photo" name="photo" accept="image/*" capture="environment">
+    <input type="hidden" name="lat" id="lat">
+    <input type="hidden" name="lng" id="lng">
+    <p class="geo-note muted">{{ t['location_waiting'] }}</p>
+    <button class="btn big" type="submit">{{ t['save_attendance'] }}</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>{{ t['my_tasks'] }}</h2>
+  {% if my_tasks %}
+  <ul class="plain">
+    {% for task in my_tasks %}
+    <li>
+      <strong>{{ task.title }}</strong> &mdash; {{ t['due'] }} {{ task.due_at or t['no_date'] }}
+      {% if task.status == 'done' %}
+        &middot; <span class="green">{{ t['done'] }}</span>
+        {% if task.photo_path %}&middot; <a href="{{ photo_url(task.photo_path) }}" target="_blank">{{ t['see_proof_photo'] }}</a>{% endif %}
+      {% elif is_overdue(task) %}
+        &middot; <span class="red">{{ t['overdue'] }} ({{ late_text(task) }})</span>
+      {% else %}
+        &middot; {{ t['open'] }}
+      {% endif %}
+      {% if task.status != 'done' %}
+      <form method="post" action="{{ url_for('task_done', task_id=task.id) }}" enctype="multipart/form-data" class="mt">
+        <label for="photo-{{ task.id }}">{{ t['photo_proof_needed'] }}</label>
+        <input type="file" id="photo-{{ task.id }}" name="photo" accept="image/*" capture="environment" required>
+        <button class="btn" type="submit">{{ t['mark_done_photo'] }}</button>
+      </form>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>{{ t['no_my_tasks'] }}</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>{{ t['your_history'] }}</h2>
+  {% if history %}
+  <ul class="plain">
+    {% for h in history %}
+    <li>{{ h.date }} &mdash; <strong>{{ status_text(h.status) }}</strong>, {{ worked_till_text(h.worked_till) }}
+      {% if h.worked_till == 'Overnight' %} <span class="badge-overnight">{{ t['wt_overnight'] }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>{{ t['not_marked_yet'] }}</p>
+  {% endif %}
+</div>
+{% endblock %}

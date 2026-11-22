@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ t['update_attendance'] }} - {{ att.worker_name }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('attendance', site_id=site.id) }}">&larr; {{ t['back'] }} {{ site.name }}</a></p>
+<h1>{{ t['update_attendance'] }}</h1>
+<p class="muted">{{ att.worker_name }} ({{ att.worker_role }}) &middot; {{ site.name }} &middot; {{ att.date }}</p>
+
+<div class="card">
+  <form method="post">
+    <label>{{ t['status'] }}</label>
+    <div class="radio-row">
+      <label><input type="radio" name="status" value="Present" {{ 'checked' if att.status == 'Present' else '' }}> {{ t['present'] }}</label>
+      <label><input type="radio" name="status" value="Absent" {{ 'checked' if att.status == 'Absent' else '' }}> {{ t['absent'] }}</label>
+      <label><input type="radio" name="status" value="Half day" {{ 'checked' if att.status == 'Half day' else '' }}> {{ t['half_day'] }}</label>
+    </div>
+    <label for="worked_till">{{ t['worked_till'] }}</label>
+    <select name="worked_till" id="worked_till">
+      {% for opt in worked_till_options %}
+      <option value="{{ opt }}" {{ 'selected' if att.worked_till == opt else '' }}>{{ wt_label(opt) }}</option>
+      {% endfor %}
+    </select>
+    {% if att.photo_path %}
+    <p>{{ t['photo'] }}: <a href="{{ photo_url(att.photo_path) }}" target="_blank">{{ t['photo'] }}</a></p>
+    {% endif %}
+    {% if att.lat and att.lng %}<p class="muted">{{ t['location'] }}: {{ att.lat }}, {{ att.lng }}</p>{% endif %}
+    <button class="btn big" type="submit">{{ t['update_attendance'] }}</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,49 +1,72 @@
 {% extends "base.html" %}
-{% block title %}Attendance - {{ site.name }}{% endblock %}
+{% block title %}{{ t['attendance'] }} - {{ site.name }}{% endblock %}
 {% block content %}
-<p><a href="{{ url_for('site_detail', site_id=site.id) }}">&larr; Back to {{ site.name }}</a></p>
-<h1>Attendance &mdash; {{ site.name }}</h1>
-<p class="muted">Today: {{ today }}</p>
+<p><a href="{{ url_for('site_detail', site_id=site.id) }}">&larr; {{ t['back'] }} {{ site.name }}</a></p>
+<h1>{{ t['attendance'] }} &mdash; {{ site.name }}</h1>
+<p class="muted">{{ t['today'] }}: {{ today }}</p>
 
 <div class="card">
-  <h2>Mark attendance</h2>
+  <h2>{{ t['mark_attendance'] }}</h2>
   <form method="post" enctype="multipart/form-data" data-geo-form>
-    <label for="worker_id">Worker</label>
+    <label for="worker_id">{{ t['worker'] }}</label>
     <select name="worker_id" id="worker_id" required>
-      <option value="">Choose a worker</option>
+      <option value="">{{ t['choose_worker'] }}</option>
       {% for w in workers %}
       <option value="{{ w.id }}">{{ w.name }} &mdash; {{ w.role }}</option>
       {% endfor %}
     </select>
-    <label>Status</label>
+    <label>{{ t['status'] }}</label>
     <div class="radio-row">
-      <label><input type="radio" name="status" value="Present" checked> Present</label>
-      <label><input type="radio" name="status" value="Absent"> Absent</label>
-      <label><input type="radio" name="status" value="Half day"> Half day</label>
+      <label><input type="radio" name="status" value="Present" checked> {{ t['present'] }}</label>
+      <label><input type="radio" name="status" value="Absent"> {{ t['absent'] }}</label>
+      <label><input type="radio" name="status" value="Half day"> {{ t['half_day'] }}</label>
     </div>
-    <label for="photo">Photo (face check &mdash; opens camera on phone)</label>
+    <label for="worked_till">{{ t['worked_till'] }}</label>
+    <select name="worked_till" id="worked_till">
+      {% for opt in worked_till_options %}
+      <option value="{{ opt }}">{{ wt_label(opt) }}</option>
+      {% endfor %}
+    </select>
+    <label for="photo">{{ t['photo_face'] }}</label>
     <input type="file" id="photo" name="photo" accept="image/*" capture="environment">
     <input type="hidden" name="lat" id="lat">
     <input type="hidden" name="lng" id="lng">
-    <p class="geo-note muted">Location: waiting for GPS&hellip;</p>
-    <button class="btn big" type="submit">Save attendance</button>
+    <p class="geo-note muted">{{ t['location_waiting'] }}</p>
+    <button class="btn big" type="submit">{{ t['save_attendance'] }}</button>
   </form>
 </div>
 
 <div class="card">
-  <h2>Today's list</h2>
-  {% if today_att %}
+  <h2>{{ t['todays_list'] }}</h2>
+  {% set present_rows = today_att | selectattr('status', 'in', ['Present', 'Half day']) | list %}
+  {% set absent_rows = today_att | selectattr('status', 'equalto', 'Absent') | list %}
+  <h3>{{ t['present_list'] }} ({{ present_rows|length }})</h3>
+  {% if present_rows %}
   <ul class="plain">
-    {% for a in today_att %}
-    <li>{{ a.worker_name }} ({{ a.worker_role }}) &mdash; <strong>{{ a.status }}</strong>
+    {% for a in present_rows %}
+    <li>{{ a.worker_name }} ({{ a.worker_role }}) &mdash; <strong>{{ status_text(a.status) }}</strong>, {{ worked_till_text(a.worked_till) }}
+      {% if a.worked_till == 'Overnight' %} <span class="badge-overnight">{{ t['wt_overnight'] }}</span>{% endif %}
       {% if a.lat and a.lng %}&middot; {{ a.lat }}, {{ a.lng }}{% endif %}
-      {% if a.photo_path %}&middot; <a href="{{ photo_url(a.photo_path) }}" target="_blank">photo</a>{% endif %}
+      {% if a.photo_path %}&middot; <a href="{{ photo_url(a.photo_path) }}" target="_blank">{{ t['photo'] }}</a>{% endif %}
+      &middot; <a href="{{ url_for('attendance_edit', att_id=a.id) }}">{{ t['edit'] }}</a>
     </li>
     {% endfor %}
   </ul>
   {% else %}
-  <p>No one marked yet today.</p>
+  <p>{{ t['no_present'] }}</p>
   {% endif %}
-  <p><a href="{{ url_for('attendance_history', site_id=site.id) }}">See history</a></p>
+  <h3>{{ t['absent_list'] }} ({{ absent_rows|length }})</h3>
+  {% if absent_rows %}
+  <ul class="plain">
+    {% for a in absent_rows %}
+    <li>{{ a.worker_name }} ({{ a.worker_role }}) &mdash; <strong>{{ status_text(a.status) }}</strong>
+      &middot; <a href="{{ url_for('attendance_edit', att_id=a.id) }}">{{ t['edit'] }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>{{ t['no_absent'] }}</p>
+  {% endif %}
+  <p><a href="{{ url_for('attendance_history', site_id=site.id) }}">{{ t['see_history'] }}</a></p>
 </div>
 {% endblock %}
